@@ -78,6 +78,8 @@ class CalendarCarousel<T> extends StatefulWidget {
   final bool isScrollable;
   final bool showOnlyCurrentMonthDate;
   final bool pageSnapping;
+  final int leftLimit;
+  final int rightLimit;
 
   CalendarCarousel({
     this.viewportFraction = 1.0,
@@ -142,6 +144,8 @@ class CalendarCarousel<T> extends StatefulWidget {
     this.isScrollable = true,
     this.showOnlyCurrentMonthDate = false,
     this.pageSnapping = false,
+    this.leftLimit = 9999999,
+    this.rightLimit = 9999999,
   });
 
   @override
@@ -165,6 +169,9 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
   int _startWeekday = 0;
   int _endWeekday = 0;
   DateFormat _localeDate;
+  bool _onLeftLimit = false;
+  bool _onRightLimit = false;
+  int _currentLimitOffset = 0;
 
   /// When FIRSTDAYOFWEEK is 0 in dart-intl, it represents Monday. However it is the second day in the arrays of Weekdays.
   /// Therefore we need to add 1 modulo 7 to pick the right weekday from intl. (cf. [GlobalMaterialLocalizations])
@@ -230,8 +237,8 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
             headerIconColor: widget.iconColor,
             leftButtonIcon: widget.leftButtonIcon,
             rightButtonIcon: widget.rightButtonIcon,
-            onLeftButtonPressed: () => _setDate(0),
-            onRightButtonPressed: () => _setDate(2),
+            onLeftButtonPressed: !_onLeftLimit ? (() => _setDate(0)) : null,
+            onRightButtonPressed: !_onRightLimit ? (() => _setDate(2)) : null,
             isTitleTouchable: widget.headerTitleTouchable,
             onHeaderTitlePressed: widget.onHeaderTitlePressed != null
                 ? widget.onHeaderTitlePressed
@@ -751,6 +758,7 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
         DateTime curr;
         List<List<DateTime>> newWeeks = this._weeks;
         if (page == 0) {
+          _currentLimitOffset--;
           curr = _weeks[0].first;
           newWeeks[0] =
               _getDaysInWeek(DateTime(curr.year, curr.month, curr.day - 7));
@@ -759,6 +767,7 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
               _getDaysInWeek(DateTime(curr.year, curr.month, curr.day + 7));
           page += 1;
         } else if (page == 2) {
+          _currentLimitOffset++;
           curr = _weeks[2].first;
           newWeeks[1] = _getDaysInWeek(curr);
           newWeeks[0] =
@@ -777,11 +786,13 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
       } else {
         List<DateTime> dates = this._dates;
         if (page == 0) {
+          _currentLimitOffset--;
           dates[2] = DateTime(dates[0].year, dates[0].month + 1, 1);
           dates[1] = DateTime(dates[0].year, dates[0].month, 1);
           dates[0] = DateTime(dates[0].year, dates[0].month - 1, 1);
           page = page + 1;
         } else if (page == 2) {
+          _currentLimitOffset++;
           dates[0] = DateTime(dates[2].year, dates[2].month - 1, 1);
           dates[1] = DateTime(dates[2].year, dates[2].month, 1);
           dates[2] = DateTime(dates[2].year, dates[2].month + 1, 1);
@@ -809,6 +820,29 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
             : this._weeks[1][firstDayOfWeek]);
       });
     }
+
+    if (_currentLimitOffset < 0) {
+      //check limit left
+      if (_currentLimitOffset.abs() >= widget.leftLimit) {
+        setState(() => _onLeftLimit = true);
+      } else {
+        setState(() {
+          _onLeftLimit = false;
+          _onRightLimit = false;
+        });
+      }
+    } else {
+      //check limit right
+      if (_currentLimitOffset.abs() >= widget.rightLimit) {
+        setState(() => _onRightLimit = true);
+      } else {
+        setState(() {
+          _onLeftLimit = false;
+          _onRightLimit = false;
+        });
+      }
+    }
+
   }
 
   Widget _renderMarked(DateTime now) {
