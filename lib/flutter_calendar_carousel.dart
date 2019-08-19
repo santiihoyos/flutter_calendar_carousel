@@ -758,6 +758,7 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
         DateTime curr;
         List<List<DateTime>> newWeeks = this._weeks;
         if (page == 0) {
+          _currentLimitOffset--;
           curr = _weeks[0].first;
           newWeeks[0] =
               _getDaysInWeek(DateTime(curr.year, curr.month, curr.day - 7));
@@ -766,6 +767,7 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
               _getDaysInWeek(DateTime(curr.year, curr.month, curr.day + 7));
           page += 1;
         } else if (page == 2) {
+          _currentLimitOffset++;
           curr = _weeks[2].first;
           newWeeks[1] = _getDaysInWeek(curr);
           newWeeks[0] =
@@ -784,11 +786,13 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
       } else {
         List<DateTime> dates = this._dates;
         if (page == 0) {
+          _currentLimitOffset--;
           dates[2] = DateTime(dates[0].year, dates[0].month + 1, 1);
           dates[1] = DateTime(dates[0].year, dates[0].month, 1);
           dates[0] = DateTime(dates[0].year, dates[0].month - 1, 1);
           page = page + 1;
         } else if (page == 2) {
+          _currentLimitOffset++;
           dates[0] = DateTime(dates[2].year, dates[2].month - 1, 1);
           dates[1] = DateTime(dates[2].year, dates[2].month, 1);
           dates[2] = DateTime(dates[2].year, dates[2].month + 1, 1);
@@ -816,6 +820,8 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
             : this._weeks[1][firstDayOfWeek]);
       });
     }
+
+    print("limits: $_currentLimitOffset, ${widget.leftLimit}, ${widget.rightLimit}");
 
     if (_currentLimitOffset < 0) {
       //check limit left
