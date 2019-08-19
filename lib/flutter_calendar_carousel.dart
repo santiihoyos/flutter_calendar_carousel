@@ -78,6 +78,8 @@ class CalendarCarousel<T> extends StatefulWidget {
   final bool isScrollable;
   final bool showOnlyCurrentMonthDate;
   final bool pageSnapping;
+  final int leftLimit;
+  final int rightLimit;
 
   CalendarCarousel({
     this.viewportFraction = 1.0,
@@ -165,6 +167,9 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
   int _startWeekday = 0;
   int _endWeekday = 0;
   DateFormat _localeDate;
+  bool _onLeftLimit = false;
+  bool _onRightLimit = false;
+  int _currentLimitOffset = 0;
 
   /// When FIRSTDAYOFWEEK is 0 in dart-intl, it represents Monday. However it is the second day in the arrays of Weekdays.
   /// Therefore we need to add 1 modulo 7 to pick the right weekday from intl. (cf. [GlobalMaterialLocalizations])
@@ -230,8 +235,8 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
             headerIconColor: widget.iconColor,
             leftButtonIcon: widget.leftButtonIcon,
             rightButtonIcon: widget.rightButtonIcon,
-            onLeftButtonPressed: () => _setDate(0),
-            onRightButtonPressed: () => _setDate(2),
+            onLeftButtonPressed: !_onLeftLimit ? (() => _setDate(0)) : null,
+            onRightButtonPressed: !_onRightLimit ? (() => _setDate(2)) : null,
             isTitleTouchable: widget.headerTitleTouchable,
             onHeaderTitlePressed: widget.onHeaderTitlePressed != null
                 ? widget.onHeaderTitlePressed
@@ -809,6 +814,31 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
             : this._weeks[1][firstDayOfWeek]);
       });
     }
+
+    if (_currentLimitOffset < 0) {
+      //check limit left
+      if (_currentLimitOffset.abs() >= widget.leftLimit) {
+        setState(() => _onLeftLimit = true);
+        print("bloqueando izquierda!");
+      } else {
+        setState(() {
+          _onLeftLimit = false;
+          _onRightLimit = false;
+        });
+      }
+    } else {
+      //check limit right
+      if (_currentLimitOffset.abs() >= widget.rightLimit) {
+        setState(() => _onRightLimit = true);
+        print("bloqueando derecha!");
+      } else {
+        setState(() {
+          _onLeftLimit = false;
+          _onRightLimit = false;
+        });
+      }
+    }
+
   }
 
   Widget _renderMarked(DateTime now) {

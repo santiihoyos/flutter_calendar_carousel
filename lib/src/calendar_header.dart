@@ -33,14 +33,20 @@ class CalendarHeader extends StatelessWidget {
   TextStyle get getTextStyle =>
       headerTextStyle != null ? headerTextStyle : defaultHeaderTextStyle;
 
-  Widget _leftButton() => IconButton(
-        onPressed: onLeftButtonPressed,
-        icon: leftButtonIcon ?? Icon(Icons.chevron_left, color: headerIconColor),
+  Widget _leftButton() => Opacity(
+        opacity: onLeftButtonPressed != null ? 1.0 : 0.0,
+        child: IconButton(
+          onPressed: onLeftButtonPressed,
+          icon: leftButtonIcon ?? Icon(Icons.chevron_left, color: headerIconColor),
+        ),
       );
 
-  Widget _rightButton() => IconButton(
-        onPressed: onRightButtonPressed,
-        icon: rightButtonIcon ?? Icon(Icons.chevron_right, color: headerIconColor),
+  Widget _rightButton() => Opacity(
+        opacity: onRightButtonPressed != null ? 1.0 : 0.0,
+        child: IconButton(
+          onPressed: onRightButtonPressed,
+          icon: rightButtonIcon ?? Icon(Icons.chevron_right, color: headerIconColor),
+        ),
       );
 
   Widget _headerTouchable() => FlatButton(
