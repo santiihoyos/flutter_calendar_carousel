@@ -144,6 +144,8 @@ class CalendarCarousel<T> extends StatefulWidget {
     this.isScrollable = true,
     this.showOnlyCurrentMonthDate = false,
     this.pageSnapping = false,
+    this.leftLimit = 9999999,
+    this.rightLimit = 9999999,
   });
 
   @override
