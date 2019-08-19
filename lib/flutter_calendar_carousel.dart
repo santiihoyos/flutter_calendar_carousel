@@ -821,13 +821,10 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
       });
     }
 
-    print("limits: $_currentLimitOffset, ${widget.leftLimit}, ${widget.rightLimit}");
-
     if (_currentLimitOffset < 0) {
       //check limit left
       if (_currentLimitOffset.abs() >= widget.leftLimit) {
         setState(() => _onLeftLimit = true);
-        print("bloqueando izquierda!");
       } else {
         setState(() {
           _onLeftLimit = false;
@@ -838,7 +835,6 @@ class _CalendarState<T> extends State<CalendarCarousel<T>> {
       //check limit right
       if (_currentLimitOffset.abs() >= widget.rightLimit) {
         setState(() => _onRightLimit = true);
-        print("bloqueando derecha!");
       } else {
         setState(() {
           _onLeftLimit = false;
